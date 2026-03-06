@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <span>SmartPricing</span>
+            </div>
+            <button class="close-sidebar d-md-none" onclick="toggleSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-link active" data-page="dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-link" data-page="billing">
+                <i class="fas fa-calculator"></i>
+                <span>Billing</span>
+            </a>
+            <a href="#" class="nav-link" data-page="pricing">
+                <i class="fas fa-tags"></i>
+<span>Smart Pricing</span>
+            </a>
+            <a href="#" class="nav-link" data-page="analytics">
+                <i class="fas fa-chart-pie"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="#" class="nav-link" data-page="ads">
+                <i class="fas fa-bullhorn"></i>
+<span>Smart Social Ads</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <button class="menu-toggle d-md-none" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title" id="pageTitle">Dashboard</h1>
+            </div>
+            <div class="header-right">
+                <div class="datetime" id="datetime"></div>
+            </div>
+        </header>
+
+        <!-- Content Pages -->
+        <div class="content-area">
+            <!-- Dashboard Page -->
+            <div class="page-content active" id="page-dashboard">
+                <div class="container-fluid">
+                    <!-- Stats Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="stat-card stat-primary">
+                                <div class="stat-icon">
+                                    <i class="fas fa-boxes"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 id="statProducts">-</h3>
+                                    <p>Total Products</p>
+                                </div>
+                                <div class="stat-trend up">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>Active</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card stat-success">
+                                <div class="stat-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 id="statRecommendations">-</h3>
+<p>Smart Recommendations</p>
+                                </div>
+                                <div class="stat-trend up">
+                                    <i class="fas fa-brain"></i>
+                                    <span>ML Powered</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card stat-warning">
+                                <div class="stat-icon">
+                                    <i class="fas fa-store"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 id="statMarketPrices">-</h3>
+                                    <p>Market Prices</p>
+                                </div>
+                                <div class="stat-trend">
+                                    <i class="fas fa-sync-alt"></i>
+                                    <span>Live</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="quick-actions-card">
+                                <h4><i class="fas fa-bolt"></i> Quick Actions</h4>
+                                <div class="quick-actions">
+                                    <button class="action-btn" onclick="navigateTo('billing')">
+                                        <i class="fas fa-calculator"></i>
+                                        <span>New Invoice</span>
+                                    </button>
+                                    <button class="action-btn" onclick="navigateTo('pricing')">
+                                        <i class="fas fa-tags"></i>
+                                        <span>View Pricing</span>
+                                    </button>
+                                    <button class="action-btn" onclick="navigateTo('analytics')">
+                                        <i class="fas fa-chart-line"></i>
+                                        <span>Sales Report</span>
+                                    </button>
+                                    <button class="action-btn" onclick="navigateTo('ads')">
+                                        <i class="fas fa-share-alt"></i>
+                                        <span>Create Ad</span>
+                                    </button>
+                                    <button class="action-btn action-btn-warning" id="runScraperBtn" onclick="runScraper()">
+                                        <i class="fas fa-spider"></i>
+                                        <span>Run Scraper</span>
+                                    </button>
+                                    <button class="action-btn action-btn-success" id="generateRecsBtn" onclick="generateRecommendations()">
+                                        <i class="fas fa-robot"></i>
+                                        <span>Generate Recommendations</span>
+                                    </button>
+                                    <button class="action-btn action-btn-primary" id="uploadCsvBtn" onclick="document.getElementById('csvFileInput').click()">
+                                        <i class="fas fa-upload"></i>
+                                        <span>Upload Products CSV</span>
+                                    </button>
+                                    <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="handleCsvUpload(this)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Insights & Recent Activity -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card dashboard-card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-robot"></i> Smart Pricing Insights</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="smartInsights">
+                                        <div class="loading-spinner">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p>Loading Smart insights...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing Page -->
+            <div class="page-content" id="page-billing">
+                <div class="container-fluid">
+                    <div class="row">
+                        <!-- Product Selection -->
+                        <div class="col-lg-7">
+                            <div class="card billing-card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-shopping-cart"></i> Select Products</h5>
+                                    <div class="search-box">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="productSearch" placeholder="Search products...">
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="product-list" id="billingProductList">
+                                        <div class="loading-spinner">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p>Loading products...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cart & Invoice -->
+                        <div class="col-lg-5">
+                            <div class="card billing-card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-file-invoice"></i> Invoice</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="invoiceForm">
+                                        <div class="mb-3">
+                                            <label class="form-label">Customer Name</label>
+                                            <input type="text" class="form-control" id="customerName" placeholder="Enter customer name" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Customer Phone</label>
+                                            <input type="tel" class="form-control" id="customerPhone" placeholder="Enter phone number">
+                                        </div>
+                                        
+                                        <div class="cart-items" id="cartItems">
+                                            <p class="text-muted text-center">No items in cart</p>
+                                        </div>
+
+                                        <div class="cart-summary">
+                                            <div class="summary-row">
+                                                <span>Subtotal</span>
+                                                <span id="cartSubtotal">₹0.00</span>
+                                            </div>
+                                            <div class="summary-row">
+                                                <span>Tax (10%)</span>
+                                                <span id="cartTax">₹0.00</span>
+                                            </div>
+                                            <div class="summary-row total">
+                                                <span>Total</span>
+                                                <span id="cartTotal">₹0.00</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="billing-actions">
+                                            <button type="button" class="btn btn-outline-danger" onclick="clearCart()">
+                                                <i class="fas fa-trash"></i> Clear
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-file-pdf"></i> Generate Invoice
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Pricing Page -->
+            <div class="page-content" id="page-pricing">
+                <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+<h5><i class="fas fa-robot"></i> Smart-Powered Pricing Recommendations</h5>
+                                    <p class="text-muted mb-0">Smart pricing based on market analysis and ML algorithms</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="filter-group">
+                                <input type="text" class="form-control" id="pricingSearch" placeholder="Search products...">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="filter-group">
+                                <select class="form-select" id="pricingSort">
+                                    <option value="name">Sort by Name</option>
+                                    <option value="difference">Sort by Deal %</option>
+                                    <option value="recommended">Sort by Recommended Price</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover pricing-table" id="pricingTable">
+                                    <thead>
+<tr>
+                                            <th>Product</th>
+                                            <th>Cost Price</th>
+                                            <th>Market Price</th>
+                                            <th>Smart Recommended</th>
+                                            <th>Deal %</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pricingTableBody">
+                                        <tr>
+                                            <td colspan="6" class="text-center">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div class="page-content" id="page-analytics">
+                <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+<h5><i class="fas fa-chart-line"></i> Sales Analytics & Smart Insights</h5>
+<p class="text-muted mb-0">Comprehensive analysis of your sales data with Smart-powered insights</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="analytics-card">
+                                <div class="analytics-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <i class="fas fa-rupee-sign"></i>
+                                </div>
+                                <div class="analytics-info">
+                                    <h4 id="analyticsRevenue">₹0</h4>
+                                    <p>Total Revenue</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="analytics-card">
+                                <div class="analytics-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                    <i class="fas fa-shopping-bag"></i>
+                                </div>
+                                <div class="analytics-info">
+                                    <h4 id="analyticsOrders">0</h4>
+                                    <p>Total Orders</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="analytics-card">
+                                <div class="analytics-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                    <i class="fas fa-percent"></i>
+                                </div>
+                                <div class="analytics-info">
+                                    <h4 id="analyticsGrowth">0%</h4>
+                                    <p>Growth Rate</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="analytics-card">
+                                <div class="analytics-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                    <i class="fas fa-arrow-trend-up"></i>
+                                </div>
+                                <div class="analytics-info">
+                                    <h4 id="analyticsSavings">₹0</h4>
+<p>Smart Savings</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="row mb-4">
+                        <div class="col-lg-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Revenue Trend</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="revenueChart" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Sales Distribution</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="salesChart" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Insights -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-lightbulb"></i> Smart-Powered Business Insights</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="smartInsightsList">
+                                        <div class="insight-item">
+                                            <div class="insight-icon">
+                                                <i class="fas fa-chart-line"></i>
+                                            </div>
+                                            <div class="insight-content">
+                                                <h6>Analyzing sales data...</h6>
+                                                <p>System is processing your business data to generate insights</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Social Ads Page -->
+            <div class="page-content" id="page-ads">
+                <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card ads-header-card">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8">
+                                            <h4><i class="fas fa-robot"></i> Smart Social Media Ads Generator</h4>
+                                            <p class="mb-0">Automatically generate engaging social media ads for products with great deals</p>
+                                        </div>
+                                        <div class="col-md-4 text-md-end">
+                                            <button class="btn btn-light" onclick="generateAllAds()">
+                                                <i class="fas fa-magic"></i> Generate All Ads
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Products with Best Deals -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-fire"></i> Hot Deals - Products Ready for Promotions</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table" id="dealsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Cost</th>
+                                                    <th>Market</th>
+                                                    <th>Smart Price</th>
+                                                    <th>Deal</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="dealsTableBody">
+                                                <tr>
+                                                    <td colspan="6" class="text-center">
+                                                        <div class="spinner-border text-primary" role="status">
+                                                            <span class="visually-hidden">Loading...</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Generated Ads -->
+                    <div class="row" id="generatedAdsSection" style="display: none;">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fas fa-ad"></i> Generated Ads</h5>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="clearAds()">
+                                        <i class="fas fa-times"></i> Clear All
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row" id="adsContainer">
+                                        <!-- Ads will be generated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ad Preview Templates -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-eye"></i> Ad Preview Templates</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <!-- Facebook/Instagram Template -->
+                                        <div class="col-md-6 mb-4">
+                                            <div class="ad-template facebook-template">
+                                                <div class="ad-template-header">
+                                                    <img src="https://via.placeholder.com/40" class="brand-avatar" alt="Brand">
+                                                    <div class="brand-info">
+                                                        <span class="brand-name">SmartPricing Store</span>
+                                                        <span class="ad-sponsored">Sponsored</span>
+                                                    </div>
+                                                </div>
+                                                <div class="ad-template-image" id="fbAdImage">
+                                                    <i class="fas fa-image"></i>
+                                                    <span>Product Image</span>
+                                                </div>
+                                                <div class="ad-template-content" id="fbAdContent">
+                                                    <h6>Product Name</h6>
+                                                    <p>Ad description will appear here...</p>
+                                                </div>
+                                                <div class="ad-template-footer">
+                                                    <span class="ad-cta">Shop Now</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Twitter/LinkedIn Template -->
+                                        <div class="col-md-6 mb-4">
+                                            <div class="ad-template twitter-template">
+                                                <div class="ad-template-header">
+                                                    <img src="https://via.placeholder.com/40" class="brand-avatar" alt="Brand">
+                                                    <div class="brand-info">
+                                                        <span class="brand-name">SmartPricing Store</span>
+                                                        <span class="ad-sponsored">Promoted</span>
+                                                    </div>
+                                                </div>
+                                                <div class="ad-template-content twitter-content" id="twAdContent">
+                                                    <p>Your ad tweet will appear here...</p>
+                                                    <div class="ad-hashtags" id="twAdHashtags">#Sale #Deal #SmartPricing</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Task Progress Modal -->
+    <div class="modal fade" id="taskProgressModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="taskProgressTitle">
+                        <i class="fas fa-tasks me-2"></i>Task Progress
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <div class="task-progress-container">
+                        <div class="task-info mb-3">
+                            <p class="mb-1"><strong>Task:</strong> <span id="taskName">-</span></p>
+                            <p class="mb-0 text-muted"><strong>Status:</strong> <span id="taskStatus" class="badge bg-info">Pending</span></p>
+                        </div>
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div id="taskProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%">0%</div>
+                        </div>
+                        <div class="task-details">
+                            <p id="taskDetails" class="text-muted mb-0">Preparing task...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeTaskModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Price History Modal -->
+    <div class="modal fade" id="priceHistoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-history me-2"></i>Price History: <span id="historyProductName">-</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="history-stat-card">
+                                <div class="history-stat-icon">
+                                    <i class="fas fa-arrow-down"></i>
+                                </div>
+                                <div class="history-stat-info">
+                                    <h6>Lowest Price</h6>
+                                    <h4 id="historyLowest">-</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="history-stat-card">
+                                <div class="history-stat-icon">
+                                    <i class="fas fa-arrow-up"></i>
+                                </div>
+                                <div class="history-stat-info">
+                                    <h6>Highest Price</h6>
+                                    <h4 id="historyHighest">-</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="history-stat-card">
+                                <div class="history-stat-icon">
+                                    <i class="fas fa-calculator"></i>
+                                </div>
+                                <div class="history-stat-info">
+                                    <h6>Average Price</h6>
+                                    <h4 id="historyAverage">-</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="priceHistoryChart" height="200"></canvas>
+                    </div>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-sm table-hover" id="priceHistoryTable">
+                            <thead>
+<tr>
+                                    <th>Date</th>
+                                    <th>Market Price</th>
+                                    <th>Smart Recommended</th>
+                                    <th>Change</th>
+                                </tr>
+                            </thead>
+                            <tbody id="priceHistoryTableBody">
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        <div class="spinner-border text-primary spinner-border-sm" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        Loading history...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/billing.js"></script>
+    <script src="js/pricing.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/ads.js"></script>
+</body>
+</html>

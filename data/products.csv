@@ -1,0 +1,50 @@
+shop_id,product_name,cost_price,current_price,category
+SHOP_001,Samsung Galaxy S24 5G,52000,74999,Mobile
+SHOP_001,iPhone 15 128GB,62000,72999,Mobile
+SHOP_001,OnePlus 12 5G,56000,64999,Mobile
+SHOP_001,Redmi Note 13 Pro 5G,23000,28999,Mobile
+SHOP_001,Realme GT 6 5G,25000,30999,Mobile
+SHOP_001,Google Pixel 8,66000,75999,Mobile
+SHOP_001,Vivo V30 5G,27000,32999,Mobile
+SHOP_001,Oppo Reno 11 5G,24500,29999,Mobile
+SHOP_001,Samsung Galaxy A35 5G,20500,26999,Mobile
+SHOP_001,Motorola Edge 40 Neo,25500,31999,Mobile
+SHOP_002,Apple MacBook Air M2,90000,104999,Laptop
+SHOP_002,Dell XPS 13,120000,139999,Laptop
+SHOP_002,HP Spectre x360,118000,134999,Laptop
+SHOP_002,Lenovo ThinkPad X1 Carbon,130000,149999,Laptop
+SHOP_002,ASUS ROG Zephyrus G14,145000,169999,Laptop
+SHOP_002,Acer Predator Helios 300,112000,129999,Laptop
+SHOP_002,MSI Katana GF66,105000,119999,Laptop
+SHOP_002,HP Pavilion Gaming 15,69000,79999,Laptop
+SHOP_002,Dell Inspiron 15 3530,56000,65999,Laptop
+SHOP_002,Lenovo IdeaPad Slim 5,52000,61999,Laptop
+SHOP_003,Apple Watch Series 9,35000,41999,Smartwatch
+SHOP_003,Samsung Galaxy Watch 6,27000,32999,Smartwatch
+SHOP_003,Noise ColorFit Ultra 3,2000,3499,Smartwatch
+SHOP_003,Boat Xtend Smartwatch,1800,2999,Smartwatch
+SHOP_003,Fire Boltt Ninja Call Pro,1500,2499,Smartwatch
+SHOP_003,AirPods Pro 2,21000,24999,Accessories
+SHOP_003,Sony WH-1000XM5,23500,27999,Accessories
+SHOP_003,JBL Tune 760NC,4200,5999,Accessories
+SHOP_003,Boat Rockerz 550,1200,1999,Accessories
+SHOP_003,Realme Buds Air 5,2300,3499,Accessories
+SHOP_004,LG 55 inch OLED C3 TV,130000,149999,TV
+SHOP_004,Samsung Crystal 4K 50 inch,61000,69999,TV
+SHOP_004,Sony Bravia 55 inch 4K,70000,79999,TV
+SHOP_004,Xiaomi Smart TV X 43 inch,36000,42999,TV
+SHOP_004,OnePlus Y Series 50 inch,33500,39999,TV
+SHOP_004,TCL 43 inch Smart TV,24000,28999,TV
+SHOP_004,Vu 55 inch Premium TV,41000,57999,TV
+SHOP_004,Panasonic 43 inch LED TV,22500,32999,TV
+SHOP_005,Sony PlayStation 5 Console,47000,54999,Gaming
+SHOP_005,Xbox Series X,43000,49999,Gaming
+SHOP_005,Nintendo Switch OLED,30000,34999,Gaming
+SHOP_006,Canon EOS 1500D DSLR,34000,39999,Camera
+SHOP_006,Nikon D5600 DSLR,52000,59999,Camera
+SHOP_006,Sony Alpha A6400,70000,79999,Camera
+SHOP_006,GoPro Hero 12 Action Cam,38000,44999,Camera
+SHOP_006,DJI Mini 3 Drone,52000,59999,Drone
+SHOP_006,Insta360 X3 Action Camera,42000,48999,Camera
+SHOP_006,Sony ZV-E10 Vlogging Camera,62000,69999,Camera
+SHOP_006,Panasonic Lumix G7,52000,59999,Camera
