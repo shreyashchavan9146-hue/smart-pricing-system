@@ -5,34 +5,58 @@ from pathlib import Path
 # Add the project root to Python path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from pymongo.errors import PyMongoError
 from backend.api.billing import generate_invoice
-from fastapi import Body
 from backend.db.mongo import products_collection
 from backend.db.mongo import recommendations_collection
-from fastapi.responses import StreamingResponse
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.pagesizes import A4
-import io
-
-
-
 from backend.api.admin import (
     upload_products_csv,
     run_scraper_job,
     generate_recommendations
 )
+from backend.api.alerts import (
+    create_price_drop_alerts,
+    get_dashboard_alerts,
+    fetch_alerts,
+    mark_alert_as_read,
+    delete_alert
+)
+from backend.api.analytics import (
+    get_overview,
+    get_dashboard_data,
+    get_sales_report,
+    get_top_selling_products,
+    get_low_performing_products
+)
+from backend.api.purchase_history import (
+    get_purchase_history,
+    get_purchase_details,
+    get_purchase_invoice_file
+)
 from backend.api.pricing import get_recommendations, get_price_history
-from backend.api.stats import dashboard_stats
+from backend.api.stats import (
+    dashboard_stats,
+    total_sales,
+    total_profit,
+    total_orders,
+    competitor_count,
+    low_stock_count
+)
 
 app = FastAPI(title="Smart Pricing System")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "*"
+    ],
     allow_methods=["*"],
     allow_headers=["*"]
 )
@@ -40,6 +64,26 @@ app.add_middleware(
 @app.get("/stats")
 def stats():
     return dashboard_stats()
+
+@app.get("/stats/total-sales")
+def stats_total_sales():
+    return total_sales()
+
+@app.get("/stats/total-profit")
+def stats_total_profit():
+    return total_profit()
+
+@app.get("/stats/total-orders")
+def stats_total_orders():
+    return total_orders()
+
+@app.get("/stats/competitor-count")
+def stats_competitor_count():
+    return competitor_count()
+
+@app.get("/stats/low-stock-count")
+def stats_low_stock_count():
+    return low_stock_count()
 
 @app.get("/recommendations")
 def recommendations():
@@ -53,14 +97,88 @@ def history(product_id: str):
 def upload_products(file: UploadFile = File(...)):
     return upload_products_csv(file)
 
+@app.get("/analytics/overview")
+def analytics_overview():
+    return get_overview()
+
+@app.get("/analytics/dashboard")
+def analytics_dashboard():
+    return get_dashboard_data()
+
+@app.get("/analytics/sales-report")
+def analytics_sales_report():
+    return get_sales_report()
+
+@app.get("/analytics/top-products")
+def analytics_top_products():
+    return get_top_selling_products()
+
+@app.get("/analytics/low-profit-products")
+def analytics_low_profit_products():
+    return get_low_performing_products()
+
+@app.get("/purchase-history")
+@app.get("/purchase_history")
+def purchase_history(search: str = "", date: str = "", period: str = ""):
+    try:
+        return get_purchase_history(search=search, date=date, period=period)
+    except PyMongoError as exc:
+        raise HTTPException(status_code=500, detail=f"Database error while loading purchase history: {exc}")
+
+@app.get("/purchase-history/{invoice_id}")
+@app.get("/purchase_history/{invoice_id}")
+def purchase_history_details(invoice_id: str):
+    try:
+        return get_purchase_details(invoice_id)
+    except PyMongoError as exc:
+        raise HTTPException(status_code=500, detail=f"Database error while loading purchase details: {exc}")
+
+@app.get("/purchase-history/{invoice_id}/download")
+@app.get("/purchase_history/{invoice_id}/download")
+def purchase_history_download(invoice_id: str):
+    return get_purchase_invoice_file(invoice_id)
+
+@app.post("/alerts/generate")
+def generate_alerts():
+    return create_price_drop_alerts()
+
+@app.get("/alerts")
+def get_all_alerts():
+    return fetch_alerts()
+
+@app.get("/dashboard-alerts")
+def dashboard_alerts():
+    return get_dashboard_alerts()
+
+@app.post("/alerts/{alert_id}/read")
+def mark_alert_read_route(alert_id: str):
+    return mark_alert_as_read(alert_id)
+
+@app.delete("/alerts/{alert_id}")
+def delete_alert_route(alert_id: str):
+    return delete_alert(alert_id)
+
+# @app.post("/admin/run-scraper")
+# def run_scraper():
+#     return run_scraper_job()
+
 @app.post("/admin/run-scraper")
 def run_scraper():
-    return run_scraper_job()
+    result = run_scraper_job()
+    print("Scraper Result:", result)
+    return result
 
+# @app.post("/admin/run-ml")
+# def run_ml():
+#     return generate_recommendations()
 @app.post("/admin/run-ml")
 def run_ml():
-    return generate_recommendations()
+    data_count = recommendations_collection.count_documents({})
 
+    if data_count == 0:
+        return {"error": "No data available for ML. Run scraper first."}
+
+    return generate_recommendations()
 
 @app.get("/")
 def root():
@@ -76,7 +194,8 @@ def get_products():
         products.append({
             "id": str(p["_id"]),
             "product_name": p["product_name"],
-            "price": p.get("current_price", p["cost_price"])
+            # "price": p.get("current_price", p["cost_price"])
+            "price": p.get("current_price") or p.get("cost_price") or 0
         })
 
     return products
@@ -111,49 +230,16 @@ def billing_products():
 # GENERATE INVOICE PDF
 # ==========================
 @app.post("/billing/generate")
-def generate_invoice(data: dict):
+def generate_invoice_pdf(data: dict):
+    try:
+        filepath = generate_invoice(data)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Invoice generation failed")
 
-    buffer = io.BytesIO()
-
-    doc = SimpleDocTemplate(buffer, pagesize=A4)
-    styles = getSampleStyleSheet()
-
-    elements = []
-
-    elements.append(
-        Paragraph(f"RetailIQ Invoice — {data['customer_name']}",
-                  styles['Title'])
-    )
-
-    table_data = [["Product", "Price", "Qty", "Total"]]
-
-    grand_total = 0
-
-    for item in data["items"]:
-        total = item["price"] * item["qty"]
-        grand_total += total
-
-        table_data.append([
-            item["product_name"],
-            f"₹{item['price']}",
-            item["qty"],
-            f"₹{total:.2f}"
-        ])
-
-    table_data.append(["", "", "Grand Total", f"₹{grand_total:.2f}"])
-
-    elements.append(Table(table_data))
-    elements.append(Spacer(1, 20))
-
-    doc.build(elements)
-
-    buffer.seek(0)
-
-    return StreamingResponse(
-        buffer,
+    return FileResponse(
+        filepath,
         media_type="application/pdf",
-        headers={
-            "Content-Disposition":
-            f"attachment; filename=invoice.pdf"
-        }
+        filename="invoice.pdf"
     )

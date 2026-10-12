@@ -17,6 +17,7 @@ from backend.db.mongo import (
     recommendations_collection,
     price_history_collection
 )
+from backend.api.alerts import create_price_drop_alerts
 from backend.ml.pricing_model import recommend_price
 
 # Import scraper function directly
@@ -60,7 +61,8 @@ def run_scraper_job():
     try:
         import asyncio
         asyncio.run(run_scraper())   # run_scraper must be async
-        return {"status": "Scraper completed"}
+        alerts = create_price_drop_alerts()
+        return {"status": "Scraper completed", "alerts": alerts}
     except Exception as e:
         return {"status": "Error", "message": str(e)}
 # ---------- ML ----------
@@ -83,6 +85,8 @@ def generate_recommendations():
                 "product_name": product["product_name"],
                 "cost_price": product["cost_price"],
                 "market_price": competitor["market_avg_price"],
+                "market_sources": competitor.get("market_sources", []),
+                "market_links": competitor.get("market_links", []),
                 "recommended_price": price,
                 "updated_at": datetime.now(timezone.utc)
             }},

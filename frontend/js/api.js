@@ -3,7 +3,7 @@
  * Handles all communication with the backend FastAPI server
  */
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = window.API_BASE_URL || `${window.location.protocol}//${window.location.hostname || '127.0.0.1'}:8000`;
 
 // API Endpoints
 const API = {
@@ -21,6 +21,31 @@ const API = {
     getRecommendations: () => `${API_BASE_URL}/recommendations`,
     getPriceHistory: (productId) => `${API_BASE_URL}/pricing/history/${productId}`,
     
+    // Analytics
+    getOverview: () => `${API_BASE_URL}/analytics/overview`,
+    getAnalyticsDashboard: () => `${API_BASE_URL}/analytics/dashboard`,
+    getSalesReport: () => `${API_BASE_URL}/analytics/sales-report`,
+    getTopProducts: () => `${API_BASE_URL}/analytics/top-products`,
+    getLowProfitProducts: () => `${API_BASE_URL}/analytics/low-profit-products`,
+
+    // Purchase History
+    getPurchaseHistory: () => `${API_BASE_URL}/purchase-history`,
+    getPurchaseDetails: (invoiceId) => `${API_BASE_URL}/purchase-history/${invoiceId}`,
+    downloadInvoice: (invoiceId) => `${API_BASE_URL}/purchase-history/${invoiceId}/download`,
+
+    // Alerts
+    getAlerts: () => `${API_BASE_URL}/alerts`,
+    getDashboardAlerts: () => `${API_BASE_URL}/dashboard-alerts`,
+    markAlertRead: (alertId) => `${API_BASE_URL}/alerts/${alertId}/read`,
+    deleteAlert: (alertId) => `${API_BASE_URL}/alerts/${alertId}`,
+
+    // Stats
+    getCompetitorCount: () => `${API_BASE_URL}/stats/competitor-count`,
+    getLowStockCount: () => `${API_BASE_URL}/stats/low-stock-count`,
+    getTotalSales: () => `${API_BASE_URL}/stats/total-sales`,
+    getTotalProfit: () => `${API_BASE_URL}/stats/total-profit`,
+    getTotalOrders: () => `${API_BASE_URL}/stats/total-orders`,
+
     // Admin
     uploadProducts: () => `${API_BASE_URL}/admin/upload-products`,
     runScraper: () => `${API_BASE_URL}/admin/run-scraper`,
@@ -41,9 +66,21 @@ async function fetchAPI(url, options = {}) {
         });
         
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            let detail = `HTTP error! status: ${response.status}`;
+            try {
+                const errorPayload = await response.json();
+                detail = errorPayload.detail || errorPayload.message || detail;
+            } catch (parseError) {
+                // Keep the original HTTP status message when the response is not JSON.
+            }
+            throw new Error(detail);
         }
-        
+
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+            return null;
+        }
+
         return await response.json();
     } catch (error) {
         console.error('API Error:', error);
@@ -143,6 +180,49 @@ const ProductsAPI = {
      */
     async getAll() {
         return await fetchAPI(API.getProducts());
+    }
+};
+
+/**
+ * Purchase History API functions
+ */
+const PurchaseAPI = {
+    async getHistory(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return await fetchAPI(`${API.getPurchaseHistory()}${query ? `?${query}` : ''}`);
+    },
+
+    async getDetails(invoiceId) {
+        return await fetchAPI(API.getPurchaseDetails(invoiceId));
+    },
+
+    async downloadInvoice(invoiceId) {
+        window.open(API.downloadInvoice(invoiceId), '_blank');
+    }
+};
+
+/**
+ * Analytics API functions
+ */
+const AnalyticsAPI = {
+    async getOverview() {
+        return await fetchAPI(API.getOverview());
+    },
+
+    async getDashboard() {
+        return await fetchAPI(API.getAnalyticsDashboard());
+    },
+
+    async getSalesReport() {
+        return await fetchAPI(API.getSalesReport());
+    },
+
+    async getTopProducts() {
+        return await fetchAPI(API.getTopProducts());
+    },
+
+    async getLowProfitProducts() {
+        return await fetchAPI(API.getLowProfitProducts());
     }
 };
 
@@ -259,12 +339,33 @@ function calculatePercentage(original, current) {
     return ((current - original) / original) * 100;
 }
 
+const AlertsAPI = {
+    async getAlerts() {
+        return await fetchAPI(API.getAlerts());
+    },
+
+    async getDashboardAlerts() {
+        return await fetchAPI(API.getDashboardAlerts());
+    },
+
+    async markAlertRead(alertId) {
+        return await fetchAPI(API.markAlertRead(alertId), { method: 'POST' });
+    },
+
+    async deleteAlert(alertId) {
+        return await fetchAPI(API.deleteAlert(alertId), { method: 'DELETE' });
+    }
+};
+
 // Export all API modules
 window.API = API;
 window.DashboardAPI = DashboardAPI;
+window.AnalyticsAPI = AnalyticsAPI;
 window.BillingAPI = BillingAPI;
 window.PricingAPI = PricingAPI;
 window.ProductsAPI = ProductsAPI;
+window.PurchaseAPI = PurchaseAPI;
+window.AlertsAPI = AlertsAPI;
 window.AdminAPI = AdminAPI;
 window.fetchAPI = fetchAPI;
 window.downloadBlob = downloadBlob;

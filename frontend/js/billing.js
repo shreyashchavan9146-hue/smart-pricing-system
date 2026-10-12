@@ -106,6 +106,7 @@ function updateQuantity(productId, change) {
                 product_id: product.product_id,
                 product_name: product.product_name,
                 price: product.recommended_price || product.cost_price || 0,
+                cost_price: product.cost_price || 0,
                 qty: 1
             });
         }
@@ -146,6 +147,7 @@ function updateCartDisplay() {
     const cartItems = document.getElementById('cartItems');
     const cartSubtotal = document.getElementById('cartSubtotal');
     const cartTax = document.getElementById('cartTax');
+    const cartTaxRow = document.getElementById('cartTaxRow');
     const cartTotal = document.getElementById('cartTotal');
     
     if (!cartItems) return;
@@ -185,11 +187,11 @@ function updateCartDisplay() {
     
     // Calculate totals
     const subtotal = AppState.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    const tax = subtotal * 0.10; // 10% tax
-    const total = subtotal + tax;
+    const total = subtotal;
     
     if (cartSubtotal) cartSubtotal.textContent = formatCurrency(subtotal);
-    if (cartTax) cartTax.textContent = formatCurrency(tax);
+    if (cartTax) cartTax.textContent = formatCurrency(0);
+    if (cartTaxRow) cartTaxRow.style.display = 'none';
     if (cartTotal) cartTotal.textContent = formatCurrency(total);
 }
 
@@ -253,6 +255,7 @@ async function handleInvoiceSubmit(e) {
             items: AppState.cart.map(item => ({
                 product_name: item.product_name,
                 price: item.price,
+                cost_price: item.cost_price || item.price,
                 qty: item.qty
             }))
         };

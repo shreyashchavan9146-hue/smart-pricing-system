@@ -10,6 +10,8 @@ def get_recommendations():
             "product_name": r["product_name"],
             "cost_price": r["cost_price"],
             "market_price": r["market_price"],
+            "market_sources": r.get("market_sources", []),
+            "market_links": r.get("market_links", []),
             "recommended_price": r["recommended_price"]
         })
     return data

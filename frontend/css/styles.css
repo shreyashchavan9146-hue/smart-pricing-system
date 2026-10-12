@@ -865,7 +865,7 @@ body {
 }
 
 .analytics-info h4 {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--gray-800);
     margin: 0;
@@ -1326,6 +1326,52 @@ body {
 .empty-state h5 {
     color: var(--gray-700);
     margin-bottom: 10px;
+}
+
+.alert-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px;
+    border-radius: 16px;
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+    border-left: 4px solid transparent;
+}
+
+.alert-item.alert-unread {
+    border-left-color: var(--danger-color);
+}
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-message {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--gray-800);
+}
+
+.alert-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: var(--gray-500);
+}
+
+.alert-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.alert-actions .btn {
+    padding: 0.5rem 0.8rem;
+    min-width: 120px;
 }
 
 /* Badge Styles */

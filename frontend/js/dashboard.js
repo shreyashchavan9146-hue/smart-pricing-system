@@ -19,6 +19,9 @@ async function loadDashboardData() {
         // Load Smart insights
         await loadSmartInsights();
         
+        // Load price drop alerts
+        await loadPriceDropAlerts();
+        
     } catch (error) {
         console.error('Error loading dashboard data:', error);
         showToast('Failed to load dashboard data', 'error');
@@ -30,23 +33,18 @@ async function loadDashboardData() {
  * @param {Object} stats - Stats object
  */
 function updateStatCards(stats) {
-    // Total Products
-    const statProducts = document.getElementById('statProducts');
-    if (statProducts) {
-        statProducts.textContent = stats.total_products || 0;
-    }
-    
-    // Smart Recommendations
-    const statRecommendations = document.getElementById('statRecommendations');
-    if (statRecommendations) {
-        statRecommendations.textContent = stats.recommendations_ready || 0;
-    }
-    
-    // Market Prices
-    const statMarketPrices = document.getElementById('statMarketPrices');
-    if (statMarketPrices) {
-        statMarketPrices.textContent = stats.market_prices || 0;
-    }
+    const statMappings = [
+        { id: 'statProducts', value: stats.total_products || 0 },
+        { id: 'statRecommendations', value: stats.recommendations_ready || stats.recommendations || 0 },
+        { id: 'statMarketPrices', value: stats.market_prices || 0 }
+    ];
+
+    statMappings.forEach(card => {
+        const element = document.getElementById(card.id);
+        if (element) {
+            element.textContent = card.value;
+        }
+    });
 }
 
 /**
@@ -181,7 +179,128 @@ function generateInsights(recommendations) {
 }
 
 // Export functions
+async function loadPriceDropAlerts() {
+    const alertsContainer = document.getElementById('dashboardAlerts');
+    if (!alertsContainer) return;
+
+    showLoading('dashboardAlerts');
+
+    try {
+        const response = await AlertsAPI.getDashboardAlerts();
+        const alerts = Array.isArray(response) ? response : (response?.alerts || []);
+        renderDashboardAlerts(alerts, response?.is_demo_data);
+    } catch (error) {
+        console.error('Error loading alerts:', error);
+        renderDashboardAlerts(getDemoDashboardAlerts(), true);
+    }
+}
+
+function getDemoDashboardAlerts() {
+    return [
+        {
+            alert_id: 'demo-alert-1',
+            product_name: 'Nothing Phone 4a',
+            cost_price: 25000,
+            market_price: 23999,
+            recommended_price: 27000,
+            profit_percent: 8,
+            alert_type: 'Loss Risk Alert',
+            alert_message: 'Market price is below cost price. Selling at market rate may cause a loss.',
+            alert_status: 'unread'
+        },
+        {
+            alert_id: 'demo-alert-2',
+            product_name: 'iPhone 17',
+            cost_price: 70000,
+            market_price: 152400,
+            recommended_price: 140208,
+            profit_percent: 100.3,
+            alert_type: 'Profit Opportunity',
+            alert_message: 'Market price is strong. This product has good margin opportunity.',
+            alert_status: 'active'
+        }
+    ];
+}
+
+function renderDashboardAlerts(alerts, isDemoData = false) {
+    const alertsContainer = document.getElementById('dashboardAlerts');
+    if (!alertsContainer) return;
+
+    if (!alerts || alerts.length === 0) {
+        alertsContainer.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-bell-slash"></i>
+                <h5>No Price Drop Alerts</h5>
+                <p>All monitored products are currently stable.</p>
+            </div>
+        `;
+        return;
+    }
+
+    alertsContainer.innerHTML = `
+        ${isDemoData ? `
+            <div class="alert alert-warning py-2 mb-3">
+                Showing demo alerts because the backend is unavailable.
+            </div>
+        ` : ''}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Cost Price</th>
+                        <th>Market Price</th>
+                        <th>Recommended Price</th>
+                        <th>Profit %</th>
+                        <th>Alert Status</th>
+                        <th>Message</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${alerts.map(alert => `
+                        <tr class="${alert.alert_type === 'Loss Risk Alert' ? 'table-danger' : 'table-success'}">
+                            <td>${alert.product_name}</td>
+                            <td>${formatCurrency(alert.cost_price || 0)}</td>
+                            <td>${formatCurrency(alert.market_price || 0)}</td>
+                            <td>${formatCurrency(alert.recommended_price || 0)}</td>
+                            <td>${Number(alert.profit_percent || 0).toFixed(2)}%</td>
+                            <td>
+                                <span class="badge ${alert.alert_type === 'Loss Risk Alert' ? 'bg-danger' : 'bg-success'}">
+                                    ${alert.alert_type}
+                                </span>
+                            </td>
+                            <td>${alert.alert_message}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+async function markAlertAsRead(alertId) {
+    try {
+        await AlertsAPI.markAlertRead(alertId);
+        await loadPriceDropAlerts();
+    } catch (error) {
+        console.error('Error marking alert read:', error);
+        showToast('Unable to mark alert read', 'error');
+    }
+}
+
+async function deleteAlert(alertId) {
+    try {
+        await AlertsAPI.deleteAlert(alertId);
+        await loadPriceDropAlerts();
+    } catch (error) {
+        console.error('Error deleting alert:', error);
+        showToast('Unable to delete alert', 'error');
+    }
+}
+
 window.loadDashboardData = loadDashboardData;
+window.markAlertAsRead = markAlertAsRead;
+window.deleteAlert = deleteAlert;
 
 /**
  * Run the market scraper to fetch competitor prices

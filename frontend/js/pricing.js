@@ -34,7 +34,7 @@ async function loadPricingData() {
         
         // Store for filtering/sorting
         window.pricingProducts = recommendations;
-        
+
         // Render pricing table
         renderPricingTable(recommendations);
         
@@ -81,6 +81,34 @@ function renderPricingTable(products) {
         const dealPercent = calculateDealPercentage(product);
         const dealClass = getDealClass(dealPercent);
         
+        const sourceText = (product.market_sources && product.market_sources.length > 0)
+            ? product.market_sources.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(', ')
+            : 'Unknown';
+
+        // Create dropdown for sources with links
+        let sourceDropdown = 'Unknown';
+        if (product.market_sources && product.market_sources.length > 0) {
+            const sourceOptions = product.market_sources.map((source, index) => {
+                const link = product.market_links && product.market_links[index] ? product.market_links[index] : '#';
+                const sourceName = source.charAt(0).toUpperCase() + source.slice(1);
+                const price = product.market_prices && product.market_prices[index] ? formatCurrency(product.market_prices[index]) : 'N/A';
+                return `<a href="${link}" target="_blank" class="dropdown-item" title="View on ${sourceName}">
+                    <strong>${sourceName}</strong> - ${price} <i class="fas fa-external-link-alt"></i>
+                </a>`;
+            }).join('');
+
+            sourceDropdown = `
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        ${product.market_sources.length} Source${product.market_sources.length > 1 ? 's' : ''}
+                    </button>
+                    <ul class="dropdown-menu">
+                        ${sourceOptions}
+                    </ul>
+                </div>
+            `;
+        }
+
         return `
             <tr>
                 <td>
@@ -88,6 +116,7 @@ function renderPricingTable(products) {
                 </td>
                 <td>${formatCurrency(product.cost_price || 0)}</td>
                 <td>${formatCurrency(product.market_price || product.market_avg_price || 0)}</td>
+                <td>${sourceDropdown}</td>
                 <td>
                     <span class="text-success fw-bold">${formatCurrency(product.recommended_price || 0)}</span>
                 </td>
@@ -187,6 +216,7 @@ function addToBilling(productId) {
             product_id: product.product_id,
             product_name: product.product_name,
             price: product.recommended_price || product.cost_price || 0,
+            cost_price: product.cost_price || 0,
             qty: 1
         });
         showToast('Product added to cart', 'success');

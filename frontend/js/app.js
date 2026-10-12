@@ -13,6 +13,7 @@ const PageTitles = {
     billing: 'Billing & Invoicing',
     pricing: 'Smart Pricing Recommendations',
     analytics: 'Sales Analytics',
+    history: 'Purchase History',
     ads: 'Smart Social Media Ads'
 };
 
@@ -136,6 +137,11 @@ async function loadPageData(page) {
         case 'analytics':
             if (typeof loadAnalyticsData === 'function') {
                 await loadAnalyticsData();
+            }
+            break;
+        case 'history':
+            if (typeof loadPurchaseHistoryData === 'function') {
+                await loadPurchaseHistoryData();
             }
             break;
         case 'ads':

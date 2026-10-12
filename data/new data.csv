@@ -1,0 +1,21 @@
+shop_id,product_name,cost_price,current_price,category
+S1,Samsung Galaxy S26 Ultra,110000,0,Smartphone
+S1,iPhone 17,70000,0,Smartphone
+S2,Nothing Phone 4a,25000,0,Smartphone
+S3,iQOO 15R,32000,0,Smartphone
+S3,Samsung Galaxy S25,60000,0,Smartphone
+S4,Samsung Galaxy M56,20000,0,Smartphone
+S5,Google Pixel 9a,35000,0,Smartphone
+S5,iPhone 16,65000,0,Smartphone
+S6,Samsung Galaxy S24 FE,50000,0,Smartphone
+S6,Samsung Galaxy A55,35000,0,Smartphone
+S7,Nothing Phone 3a,24000,0,Smartphone
+S9,Vivo V30 Pro,35000,0,Smartphone
+S10,Motorola Edge 50 Pro,36000,0,Smartphone
+S10,OnePlus Nord CE4,25000,0,Smartphone
+S11,Realme Narzo 70 Pro,18000,0,Smartphone
+S11,Redmi 13C,9000,0,Smartphone
+S12,Samsung Galaxy M55,26000,0,Smartphone
+S12,iQOO Z9,20000,0,Smartphone
+S13,Vivo T2 Pro,24000,0,Smartphone
+S13,Poco X6 Pro,27000,0,Smartphone
